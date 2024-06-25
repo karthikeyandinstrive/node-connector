@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Drawer,
   FormControl,
   IconButton,
   InputLabel,
@@ -21,6 +22,7 @@ import ReactFlow, {
   addEdge,
 } from "reactflow";
 import * as uuid from "uuid";
+import ReactJson from "react-json-view";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -44,11 +46,11 @@ function App() {
         updateDate: new Date(),
         flowNodeType: "",
         flowNodeContent: "",
-      
+
         isStartNode: true,
 
-        "flowNodeSource": [],
-        "flowNodeOutputs": [],
+        flowNodeSource: [],
+        flowNodeOutputs: [],
       },
       position: { x: 100, y: 100 },
       type: "input",
@@ -59,6 +61,7 @@ function App() {
   const [edges, setEdges] = useState([]);
 
   const [open, setOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [currentnode, setCurrentNode] = useState({});
 
   const onNodesChange = useCallback(
@@ -66,8 +69,10 @@ function App() {
     []
   );
 
-console.log(nodes)
-
+  console.log(nodes);
+  const handleDrawer = (flag) => {
+    setIsDrawerOpen(flag);
+  };
   const onEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     []
@@ -97,7 +102,7 @@ console.log(nodes)
             return node;
           })
         );
-  
+
         setNodes((prevNodes) =>
           prevNodes.map((node) => {
             if (node.id === target) {
@@ -144,10 +149,10 @@ console.log(nodes)
           updateDate: new Date(),
           flowNodeType: "",
           flowNodeContent: "",
-        
+
           isStartNode: false,
-          "flowNodeSource": [],
-          "flowNodeOutputs": [],
+          flowNodeSource: [],
+          flowNodeOutputs: [],
         },
         position: { x: x, y: y },
         type: "special",
@@ -166,10 +171,10 @@ console.log(nodes)
           updateDate: new Date(),
           flowNodeType: "",
           flowNodeContent: "",
-        
+
           isStartNode: false,
-          "flowNodeSource": [],
-          "flowNodeOutputs": [],
+          flowNodeSource: [],
+          flowNodeOutputs: [],
         },
         position: { x: x, y: y },
         type: "special",
@@ -180,12 +185,12 @@ console.log(nodes)
 
   return (
     <div style={{ height: "100vh" }}>
-      <BootstrapDialog aria-labelledby='customized-dialog-title' open={open}>
-        <DialogTitle sx={{ m: 0, p: 2 }} id='customized-dialog-title'>
+      <BootstrapDialog aria-labelledby="customized-dialog-title" open={open}>
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
           Update
         </DialogTitle>
         <IconButton
-          aria-label='close'
+          aria-label="close"
           onClick={() => {
             setOpen(false);
           }}
@@ -200,15 +205,15 @@ console.log(nodes)
         </IconButton>
         <DialogContent dividers>
           <FormControl fullWidth>
-            <InputLabel id='type'>Type</InputLabel>
+            <InputLabel id="type">Type</InputLabel>
             <Select
-              labelId='type'
-              id='type'
+              labelId="type"
+              id="type"
               value={
                 nodes?.filter((x) => x.id === currentnode?.id)?.[0]?.data
                   ?.flowNodeType || ""
               }
-              label='Type'
+              label="Type"
               onChange={(e) => {
                 const updatedNodes = nodes.map((x) =>
                   x.id === currentnode?.id
@@ -251,12 +256,19 @@ console.log(nodes)
                 );
                 setNodes(updatedNodes);
               }}
-              variant='outlined'
-              placeholder='Input'
+              variant="outlined"
+              placeholder="Input"
             />
           </FormControl>
         </DialogContent>
       </BootstrapDialog>
+      <Drawer
+        anchor={"right"}
+        open={isDrawerOpen}
+        onClose={() => handleDrawer(false)}
+      >
+        <ReactJson src={nodes} />
+      </Drawer>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -272,6 +284,22 @@ console.log(nodes)
         <Controls />
         <MiniMap nodeColor={"#9c27b0"} />
       </ReactFlow>
+      <button
+        onClick={() => handleDrawer(true)}
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 120,
+          padding: "10px 20px",
+          background: "#007BFF",
+          color: "#FFF",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        View JSON
+      </button>
       <button
         onClick={addNode}
         style={{
